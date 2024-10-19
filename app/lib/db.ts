@@ -8,7 +8,7 @@ dotenv.config({
 // Connection URL
 const url = process.env.MONGODB_URI!;
 
-let client : MongoClient;
+let client : MongoClient | undefined = undefined;
 
 export default async function createMongoClient() {
     if (client) return client;
