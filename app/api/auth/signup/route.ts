@@ -26,7 +26,8 @@ export async function POST(request: Request) {
         const { insertedId } = await client.db("v1").collection("users").insertOne({
             name,
             email,
-            password: hash
+            password: hash,
+            createdAt: new Date()
         });
     
         cookieStore.set("userId", insertedId.toString());

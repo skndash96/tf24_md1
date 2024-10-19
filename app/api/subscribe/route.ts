@@ -11,10 +11,14 @@ export async function POST(request: Request) {
     
         const user = await getUser(userId);
 
-        //TODO: Check if user is already subscribed to the plan and throw error
-
         if (!user) return new NextResponse("User doesn't exist", { status: 404 });
-    
+        
+        const rec = await client.db("v1").collection("subscriptions").findOne({
+            userId: userId
+        });
+
+        if (rec) return new NextResponse("User is already subscribed to a plan", { status: 400 });
+
         if (!["member", "premium", "vip"].includes(planName)) return new NextResponse("Invalid plan name", { status: 400 });
 
         const cost = planName === "member" ? 10 : planName === "premium" ? 20 : 30;
@@ -22,7 +26,8 @@ export async function POST(request: Request) {
         await client.db("v1").collection("subscriptions").insertOne({
             userId: userId,
             cost: cost,
-            planName: planName
+            planName: planName,
+            createdAt: new Date()
         });
     
         return new NextResponse("Subscribed successfully", { status: 200 });

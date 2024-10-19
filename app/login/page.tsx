@@ -8,7 +8,7 @@ import getAuth from "../lib/auth";
 import toast from "react-hot-toast";
 
 export default function AuthForm() {
-    const [isSignup, setIsSignup] = useState<boolean>(true);
+    const [isSignup, setIsSignup] = useState<boolean>(false);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -41,8 +41,10 @@ export default function AuthForm() {
                 });
             }
 
-            if (res.status === 200) router.push("/");
-            else {
+            if (res.status === 200) {
+                //force reload to get the new cookie
+                location.href = "/user";
+            } else {
                 const text = await res.text();
                 throw text;
             }
@@ -55,7 +57,7 @@ export default function AuthForm() {
 
     useEffect(() => {
         const userId = getAuth();
-        if (userId) router.push("/");
+        if (userId) router.push("/user");
         else setLoading(false);
     }, []);
 

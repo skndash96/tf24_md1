@@ -8,6 +8,9 @@ export async function POST(request: Request) {
         const { userId, itemId, quantity }: any = await request.json();
 
         if (!userId || !itemId) return new NextResponse("Missing required fields", { status: 400 });
+        if (typeof quantity === "number" && quantity < 1) {
+            return new NextResponse("Quantity must be greater than 0", { status: 400 });
+        }
 
         const item = await getItem(itemId);
         if (!item) return new NextResponse("Item not found", { status: 404 });
@@ -17,6 +20,7 @@ export async function POST(request: Request) {
             userId: userId,
             price: item.price*quantity,
             quantity: quantity || 1,
+            createdAt: new Date()
         });
 
         return new NextResponse("Success", { status: 200 });

@@ -1,19 +1,16 @@
-import getSubscriptions from "@/app/actions/getSubscriptions";
-import getUser from "@/app/actions/getUser";
-import createMongoClient from "@/app/lib/db";
+import getItems from "@/app/actions/getItems";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
     const cookieStore = cookies();
 
-    if (cookieStore.get("userId")?.value !== "671382fb8b8c6c4776a7c998") {
+    if (!cookieStore.get("userId")?.value) {
         return new NextResponse("Unauthorized", { status: 401 });
     }
     
     try {
-        const data = await getSubscriptions();
-        
+        const data = await getItems();
         return NextResponse.json(data, { status: 200 });
     } catch (e) {
         console.error(e);

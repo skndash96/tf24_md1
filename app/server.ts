@@ -28,7 +28,7 @@ async function prepareTotals() {
     const subscriptions = await getSubscriptions();
     subscriptions.forEach(subscription => {
         totalSubscribers++;
-        totalSubscriberCost = totalSubscriberCost + new Number(subscription.cost).valueOf();
+        totalSubscriberCost += new Number(subscription.cost).valueOf();
     });
 }
 
@@ -37,7 +37,13 @@ app.prepare().then(async () => {
 
     const io = new Server(httpServer);
 
-    const client = await createMongoClient();
+    let client;
+    try {
+        client = await createMongoClient();
+    } catch (e) {
+        console.error(e, "CANT_CONNECT");
+        return;
+    }
 
     await prepareTotals();
 
@@ -89,12 +95,19 @@ app.prepare().then(async () => {
             ...data.fullDocument, user
         });
 
+        //@ts-ignore
+        const toCost = typeof data.fullDocument.cost === "number" ? data.fullDocument.cost : new Number(data.fullDocument.cost).valueOf();
+        //@ts-ignore
+        const fromCost = typeof data.fullDocumentBeforeChange?.cost === "number" ? data.fullDocumentBeforeChange.cost : data.fullDocumentBeforeChange?.cost;
+        
         if (data.operationType === "insert") {
             totalSubscribers++;
-            totalSubscriberCost += data.fullDocument.price;
+            totalSubscriberCost += toCost;
         } else if (data.operationType === "delete") {
             totalSubscribers--;
-            totalSubscriberCost -= data.fullDocumentBeforeChange?.price;
+            totalSubscriberCost -= fromCost;
+        } else if (data.operationType === "update") {
+            totalSubscriberCost += toCost - fromCost;
         }
 
         io.emit("update_totals", {
