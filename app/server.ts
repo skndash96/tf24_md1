@@ -66,7 +66,7 @@ app.prepare().then(async () => {
         
         io.emit("update_sale", {
             //@ts-expect-error
-            ...data.fullDocument, user: [user], item: [item]
+            ...data.fullDocument, user, item
         });
 
         if (data.operationType === "insert") {
@@ -92,7 +92,7 @@ app.prepare().then(async () => {
 
         io.emit("update_subscription", {
             //@ts-expect-error
-            ...data.fullDocument, user: [user]
+            ...data.fullDocument, user
         });
 
         //@ts-expect-error

@@ -207,9 +207,9 @@ export default function UserPanel() {
 
                 <div className="w-full mx-auto">
                     <DataTable columns={columns} data={sales.map(sale => ({
-                        name: sale.item[0].name,
+                        name: sale.item.name,
                         quantity: sale.quantity,
-                        price: "$"+sale.item[0].price*sale.quantity,
+                        price: "$"+sale.item.price*sale.quantity,
                         date: new Date(sale.createdAt).toLocaleString()
                     }))} />
                 </div>

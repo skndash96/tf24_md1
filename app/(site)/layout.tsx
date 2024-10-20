@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Header from "../components/Header";
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
     children,
@@ -7,13 +8,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className="">
-                <div className="h-screen flex flex-col">
-                    <Header />
-                    {children}
-                </div>
-            </body>
-        </html>
+        <div className="h-screen flex flex-col">
+            <Toaster />
+            <Header />
+            {children}
+        </div>
     );
 }

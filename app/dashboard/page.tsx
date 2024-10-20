@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import SubscriptionsFilter from "./components/subscriptionsFilter";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 type SaleRecord = {
     id: string,
@@ -103,6 +104,10 @@ export default function Home() {
         const updateSalesHandler = (data: any) => {
             console.log("updated sales", data);
 
+            if (data?.item?.stock === 0) {
+                toast(`${data.item.name} Out of Stock`);
+            }
+        
             setSales((prevData) => {
                 const idx = prevData.findIndex((record) => record._id === data._id);
                 if (idx === -1) {
@@ -152,8 +157,8 @@ export default function Home() {
             <aside className="hidden md:block min-w-52 sm:block bg-neutral-800 text-white">
                 <h1 className="p-2 text-lg font-bold mb-2">Dashboard</h1>
                 <ul className="flex flex-col">
-                    <Button onClick={() => setTable("Sales")} className="hover:bg-neutral-700 hover:text-white" variant="ghost"> Sales </Button>
-                    <Button onClick={() => setTable("Subscriptions")} className="hover:bg-neutral-700 hover:text-white" variant="ghost"> Subscriptions </Button>
+                    <Button onClick={() => setTable("Sales")} className={`${table === "Sales" ? "bg-neutral-600" : ""} hover:bg-neutral-700 hover:text-white`} variant="ghost"> Sales </Button>
+                    <Button onClick={() => setTable("Subscriptions")} className={`${table === "Subscriptions" ? "bg-neutral-600" : ""} hover:bg-neutral-700 hover:text-white`} variant="ghost"> Subscriptions </Button>
                 </ul>
             </aside>
 

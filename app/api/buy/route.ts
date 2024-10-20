@@ -15,7 +15,16 @@ export async function POST(request: Request) {
 
         const item = await getItem(itemId);
         if (!item) return new NextResponse("Item not found", { status: 404 });
-        
+        if (item.stock < quantity) return new NextResponse("Out of stock", { status: 400 });
+
+        await client.db("v1").collection("items").updateOne({
+            _id: new ObjectId(itemId)
+        }, {
+            $inc: { stock: -quantity || -1 }
+        }, {
+            upsert: false
+        });
+
         await client.db("v1").collection("sales").insertOne({
             itemId: new ObjectId(itemId),
             userId: new ObjectId(userId),
