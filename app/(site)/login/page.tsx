@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import getAuth from "../lib/auth";
+import getAuth from "../../lib/auth";
 import toast from "react-hot-toast";
 
 export default function AuthForm() {

@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import getAuth from "../lib/auth";
+import getAuth from "../../lib/auth";
 import { useRouter } from "next/navigation";
 import DataTable from "@/components/dataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { socket } from "../socket";
+import { socket } from "../../socket";
 import toast from "react-hot-toast";
 
 type SaleRecord = {
