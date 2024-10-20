@@ -180,34 +180,34 @@ export default function Home() {
                     <Timer />
                 </div>
 
-                <section className="p-4 w-fit mx-auto flex flex-wrap gap-2">
+                <section className="md:-mt-8 p-4 w-fit mx-auto flex flex-wrap gap-2">
                     <Card className="max-w-[200px]">
                         <CardHeader>
-                            <h1 className="text-xl font-bold">
+                            <h1 className="text-2xl font-bold">
                                 ${totals.totalSale?.toFixed?.(2) || totals.totalSale}
                             </h1>
                         </CardHeader>
-                        <CardContent>Sales</CardContent>
+                        <CardContent className="text-lg">Sales</CardContent>
                     </Card>
                     <Card className="max-w-[200px]">
                         <CardHeader>
-                            <h1 className="text-xl font-bold">
+                            <h1 className="text-2xl font-bold">
                                 {totals.totalSubscribers}
                             </h1>
                         </CardHeader>
-                        <CardContent>Subscribers</CardContent>
+                        <CardContent className="text-lg">Subscribers</CardContent>
                     </Card>
                     <Card className="max-w-[200px]">
                         <CardHeader>
-                            <h1 className="text-xl font-bold">
+                            <h1 className="text-2xl font-bold">
                                 ${totals.totalSubscriberCost}
                             </h1>
                         </CardHeader>
-                        <CardContent>Subscriptions </CardContent>
+                        <CardContent className="text-lg">Subscriptions </CardContent>
                     </Card>
                 </section>
 
-                <section className="p-4 mt-8 max-w-7xl mx-auto">
+                <section className="md:-mt-8 p-4 max-w-7xl mx-auto">
                     <div className="flex gap-4 items-center">
                         <div className="block md:hidden">
                             <Select value={table} defaultValue="Sales" onValueChange={v => setTable(v)}>
