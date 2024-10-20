@@ -179,7 +179,7 @@ export default function UserPanel() {
 
                     <Button variant="secondary" onClick={handlePurchase}>
                         Purchase
-                        {quantity > 0 && ` ($${items.find(i => i._id === itemId)?.price*quantity})`}
+                        {quantity > 0 && ` ($${(items.find(i => i._id === itemId)?.price*quantity).toFixed(2)})`}
                     </Button>
                 </div>
 
