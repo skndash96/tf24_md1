@@ -13,7 +13,7 @@ export default async function getSubscriptions(q: any) {
     if (plan) {
         agg.push({
             "$match": {
-                "plan": plan
+                "planName": plan
             }
         });
     }
@@ -45,6 +45,8 @@ export default async function getSubscriptions(q: any) {
             }
         });
     }
+
+    console.log(agg, "SUBS");
 
     const data = await client.db("v1").collection("subscriptions").aggregate(agg).toArray();
 
