@@ -1,4 +1,4 @@
-import { createServer, get } from "node:http";
+import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 import createMongoClient from "./lib/db";
@@ -15,17 +15,15 @@ const port = 3000;
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
-// const io = null;
-let onlineUsers = [];
 let totalSale = 0;
 let totalSubscribers = 0;
 let totalSubscriberCost = 0;
 
 async function prepareTotals() {
-    const sales = await getSales();
+    const sales = await getSales({});
     sales.forEach(sale => totalSale += sale.price);
 
-    const subscriptions = await getSubscriptions();
+    const subscriptions = await getSubscriptions({});
     subscriptions.forEach(subscription => {
         totalSubscribers++;
         totalSubscriberCost += new Number(subscription.cost).valueOf();
@@ -59,14 +57,14 @@ app.prepare().then(async () => {
     salesStream.on("change", async data => {
         console.log("sale", data);
         
-        //@ts-ignore
+        //@ts-expect-error
         const user = await getUser(data.fullDocument.userId);
-        //@ts-ignore
+        //@ts-expect-error
         const item = await getItem(data.fullDocument.itemId);
         
         io.emit("update_sale", {
-            //@ts-ignore
-            ...data.fullDocument, user, item 
+            //@ts-expect-error
+            ...data.fullDocument, user: [user], item: [item]
         });
 
         if (data.operationType === "insert") {
@@ -87,17 +85,17 @@ app.prepare().then(async () => {
     subscriptionsStream.on("change", async data => {
         console.log("subs", data);
         
-        //@ts-ignore
+        //@ts-expect-error
         const user = await getUser(data.fullDocument.userId);
 
         io.emit("update_subscription", {
-            //@ts-ignore
-            ...data.fullDocument, user
+            //@ts-expect-error
+            ...data.fullDocument, user: [user]
         });
 
-        //@ts-ignore
+        //@ts-expect-error
         const toCost = typeof data.fullDocument.cost === "number" ? data.fullDocument.cost : new Number(data.fullDocument.cost).valueOf();
-        //@ts-ignore
+        //@ts-expect-error
         const fromCost = typeof data.fullDocumentBeforeChange?.cost === "number" ? data.fullDocumentBeforeChange.cost : data.fullDocumentBeforeChange?.cost;
         
         if (data.operationType === "insert") {

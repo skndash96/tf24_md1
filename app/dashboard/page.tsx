@@ -7,11 +7,15 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "../../components/dataTable";
-import { Checkbox } from "@/components/ui/checkbox";
+import SaleFilter from "./components/salesFilter";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SubscriptionsFilter from "./components/subscriptionsFilter";
 
 type SaleRecord = {
     id: string,
-    cost: string,
+    price: string,
+    quantity: number,
+    totalPrice: string,
     item: string,
     user: string
 }
@@ -25,28 +29,36 @@ type SubscriptionRecord = {
 
 const saleColumns: ColumnDef<SaleRecord>[] = [
     {
-        accessorKey: "item",
-        header: "Item"
-    },
-    {
         accessorKey: "user",
         header: "User"
     },
     {
-        accessorKey: "cost",
-        header: "Cost"
+        accessorKey: "email",
+        header: "Email"
+    },
+    {
+        accessorKey: "item",
+        header: "Item"
+    },
+    {
+        accessorKey: "price",
+        header: "Price"
+    },
+    {
+        accessorKey: "quantity",
+        header: "Quantity"
+    },
+    {
+        accessorKey: "totalPrice",
+        header: "Total"
     },
     {
         accessorKey: "createdAt",
-        header: "date"
+        header: "Date"
     }
 ];
 
 const subscriptionColumns: ColumnDef<SubscriptionRecord>[] = [
-    // {
-    //     accessorKey: "id",
-    //     header: "id"
-    // },
     {
         accessorKey: "user",
         header: "User"
@@ -58,6 +70,10 @@ const subscriptionColumns: ColumnDef<SubscriptionRecord>[] = [
     {
         accessorKey: "cost",
         header: "Cost"
+    },
+    {
+        accessorKey: "createdAt",
+        header: "Date"
     }
 ];
 
@@ -68,6 +84,7 @@ export default function Home() {
     const [sales, setSales] = useState<any[]>([]);
     const [subscribers, setSubscribers] = useState<any[]>([]);
     const [totals, setTotals] = useState<any>({});
+    const [table, setTable] = useState<string>("Sales");
 
     useEffect(() => {
         const _userId = getAuth();
@@ -76,38 +93,16 @@ export default function Home() {
             return;
         }
 
-        if (_userId !== "671382fb8b8c6c4776a7c998") {
+        if (_userId !== "6713bc17819052ea5df52440") {
             router.push("/user");
             return;
         }
-
-        fetch("/api/sales")
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                setSales(data)
-            })
-            .catch(error => {
-                console.error(error);
-                setSalesError(true);
-            });
-
-        fetch("/api/subscriptions")
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                setSubscribers(data)
-            })
-            .catch(error => {
-                console.error(error);
-                setSubscribersError(true);
-            });
 
         const updateSalesHandler = (data: any) => {
             console.log("updated sales", data);
 
             setSales((prevData) => {
-                let idx = prevData.findIndex((record) => record._id === data._id);
+                const idx = prevData.findIndex((record) => record._id === data._id);
                 if (idx === -1) {
                     return [...prevData, data];
                 } else {
@@ -121,7 +116,7 @@ export default function Home() {
             console.log("updated subscriptions", data);
 
             setSubscribers((prevData) => {
-                let idx = prevData.findIndex((record) => record._id === data._id);
+                const idx = prevData.findIndex((record) => record._id === data._id);
                 if (idx === -1) {
                     return [...prevData, data];
                 } else {
@@ -152,7 +147,7 @@ export default function Home() {
 
     return (
         <main>
-            <section className="p-4 max-w-md sm:max-w-2xl mx-auto grid sm:grid-cols-3 gap-2">
+            <section className="p-4 max-w-[200px] sm:max-w-2xl mx-auto grid sm:grid-cols-3 gap-2">
                 <Card>
                     <CardHeader>
                         <h1 className="text-xl font-bold">
@@ -179,46 +174,69 @@ export default function Home() {
                 </Card>
             </section>
 
-            <div className="mt-8 max-w-7xl mx-auto grid md:grid-cols-2">
-                <section className="p-2">
-                    <h2 className="mb-2 text-xl font-bold">Recent Sales</h2>
-                    {salesError && <p>Error fetching sales data</p>}
+            <section className="p-4 mt-8 max-w-7xl mx-auto">
+                <div className="flex gap-4 items-center">
+                    <Select defaultValue="Sales" onValueChange={v => setTable(v)}>
+                        <SelectTrigger className="w-fit text-base">
+                            <SelectValue placeholder="Select Table"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Sales">Sales</SelectItem>
+                            <SelectItem value="Subscriptions">Subscriptions</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                    <DataTable data={sales.map(sale => ({
-                        item: sale.item.name,
-                        user: sale.user.name,
-                        cost: "$" + sale.price,
-                        id: sale._id,
-                        createdAt: new Date(sale.createdAt || null).toLocaleString()
-                    })).reverse()} columns={saleColumns} />
+                    {table === "Sales" ? (
+                        <SaleFilter
+                            error={salesError}
+                            setError={setSalesError}
+                            data={sales}
+                            setData={setSales}
+                        />
+                    ) : (
+                        <SubscriptionsFilter
+                            error={subscribersError}
+                            setError={setSubscribersError}
+                            data={subscribers}
+                            setData={setSubscribers}
+                        />
+                    )}
+                </div>
 
-                    {/* <ul>
-                    {sales.map((sale) => (
-                        <li key={sale._id}>
-                            {sale.user.name} | ${sale.item.name} | ${sale.price}
-                        </li>
-                    ))}
-                </ul> */}
-                </section>
+                {
+                    table === "Sales" && (
+                        <section className="mt-2">
+                            {salesError && <p>Error fetching sales data</p>}
+                            <DataTable data={sales.map(sale => ({
+                                user: sale.user.name,
+                                email: sale.user.email,
+                                item: sale.item.name,
+                                price: "$" + sale.item.price,
+                                quantity: sale.quantity,
+                                totalPrice: "$" + sale.quantity * sale.item.price,
+                                id: sale._id,
+                                createdAt: new Date(sale.createdAt || null).toLocaleString()
+                            })).reverse()} columns={saleColumns} />
+                        </section>
+                    )
+                }
 
-                <section className="p-2">
-                    <h2 className="mb-2 text-xl font-bold">Recent Subscribers</h2>
-                    {subscribersError && <p>Error fetching subscribers data</p>}
-                    <DataTable data={subscribers.map(subscriber => ({
-                        user: subscriber.user.email,
-                        planName: subscriber.planName,
-                        cost: "$" + (subscriber.cost.$numberDecimal || subscriber.cost),
-                        id: subscriber._id
-                    })).reverse()} columns={subscriptionColumns} />
-                    {/* <ul>
-                    {subscribers.map((subscriber) => (
-                        <li key={subscriber._id}>
-                            {subscriber.user.email} | {subscriber.planName} | ${subscriber.cost.$numberDecimal || subscriber.cost}
-                        </li>
-                    ))}
-                </ul> */}
-                </section>
-            </div>
+                {
+                    table === "Subscriptions" && (
+                        <section className="mt-2">
+                            {/* <h2 className="mb-2 text-xl font-bold">Recent Subscribers</h2> */}
+                            {subscribersError && <p>Error fetching subscribers data</p>}
+                            <DataTable data={subscribers.map(subscriber => ({
+                                user: subscriber.user.email,
+                                planName: subscriber.planName,
+                                cost: "$" + (subscriber.cost.$numberDecimal || subscriber.cost),
+                                id: subscriber._id,
+                                createdAt: new Date(subscriber.createdAt || null).toLocaleString()
+                            })).reverse()} columns={subscriptionColumns} />
+                        </section>
+                    )
+                }
+            </section>
         </main>
     );
 }

@@ -2,7 +2,7 @@ import getItems from "@/app/actions/getItems";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET() {
     const cookieStore = cookies();
 
     if (!cookieStore.get("userId")?.value) {

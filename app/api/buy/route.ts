@@ -1,5 +1,6 @@
 import getItem from "@/app/actions/getItem";
 import createMongoClient from "@/app/lib/db";
+import { Double, ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -16,9 +17,9 @@ export async function POST(request: Request) {
         if (!item) return new NextResponse("Item not found", { status: 404 });
         
         await client.db("v1").collection("sales").insertOne({
-            itemId: itemId,
-            userId: userId,
-            price: item.price*quantity,
+            itemId: new ObjectId(itemId),
+            userId: new ObjectId(userId),
+            price: new Double(item.price*quantity),
             quantity: quantity || 1,
             createdAt: new Date()
         });

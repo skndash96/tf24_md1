@@ -1,6 +1,3 @@
-import getItem from "@/app/actions/getItem";
-import getSales from "@/app/actions/getSales";
-import getUser from "@/app/actions/getUser";
 import createMongoClient from "@/app/lib/db";
 import { ObjectId } from "mongodb";
 import { cookies } from "next/headers";
@@ -18,21 +15,23 @@ export async function GET(request: Request) {
     try {
         const client = await createMongoClient();
 
-        const data = await client.db("v1").collection("sales").find({
-            userId: {
-                $eq: userId
+        const data = await client.db("v1").collection("sales").aggregate([
+            {
+                "$match": {
+                    userId: new ObjectId(userId)
+                }
+            },
+            {
+                "$lookup": {
+                    from: "items",
+                    localField: "itemId",
+                    foreignField: "_id",
+                    as: "item"
+                }
             }
-        }).toArray();
+        ]).toArray();
 
-        const out = await Promise.all(data.map(async sale => {
-            const item = await getItem(sale.itemId);
-            
-            sale.item = item;
-
-            return sale;
-        }));
-
-        return NextResponse.json(out, { status: 200 });
+        return NextResponse.json(data, { status: 200 });
     } catch (e) {
         console.error(e);
         return new NextResponse("Internal Server Error", { status: 500 });

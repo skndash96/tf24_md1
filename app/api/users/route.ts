@@ -8,6 +8,7 @@ export async function GET(req: Request) {
         if (!userId) return new NextResponse("Invalid request", { status: 400 });
 
         const user = await getUser(typeof userId === "object" ? userId[0] : userId);
+        
         if (user) return NextResponse.json({
             _id: user._id.toString(),
             name: user.name,

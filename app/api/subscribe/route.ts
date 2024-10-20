@@ -1,5 +1,6 @@
 import getUser from "@/app/actions/getUser";
 import createMongoClient from "@/app/lib/db";
+import { Double, ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -24,8 +25,8 @@ export async function POST(request: Request) {
         const cost = planName === "member" ? 10 : planName === "premium" ? 20 : 30;
 
         await client.db("v1").collection("subscriptions").insertOne({
-            userId: userId,
-            cost: cost,
+            userId: new ObjectId(userId),
+            cost: new Double(cost),
             planName: planName,
             createdAt: new Date()
         });

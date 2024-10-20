@@ -13,10 +13,10 @@ import { socket } from "../socket";
 import toast from "react-hot-toast";
 
 type SaleRecord = {
-    name: String;
-    quantity: Number;
-    price: Number;
-    date: String;
+    name: string;
+    quantity: number;
+    price: string;
+    date: string;
 };
 
 const columns: ColumnDef<SaleRecord>[] = [
@@ -66,6 +66,8 @@ export default function UserPanel() {
             const text = await res.text();
             toast.error(text);
             return;
+        } else {
+            toast.success("Purchase successful");
         }
     };
 
@@ -85,6 +87,8 @@ export default function UserPanel() {
             const text = await res.text();
             toast.error(text);
             return;
+        } else {
+            toast.success("Subscription successful");
         }
     };
 
@@ -111,7 +115,7 @@ export default function UserPanel() {
 
         const newSaleHandler = (data: any) => {
             setSales(sales => {
-                let idx = sales.findIndex(s => s._id === data._id);
+                const idx = sales.findIndex(s => s._id === data._id);
 
                 if (idx === -1) return [...sales, data];
                 else {
@@ -203,9 +207,9 @@ export default function UserPanel() {
 
                 <div className="w-full mx-auto">
                     <DataTable columns={columns} data={sales.map(sale => ({
-                        name: sale.item.name,
+                        name: sale.item[0].name,
                         quantity: sale.quantity,
-                        price: sale.item.price,
+                        price: "$"+sale.item[0].price*sale.quantity,
                         date: new Date(sale.createdAt).toLocaleString()
                     }))} />
                 </div>

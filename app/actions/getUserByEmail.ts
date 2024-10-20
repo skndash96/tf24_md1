@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import createMongoClient from "../lib/db";
 
 export default async function getUserByEmail(userEmail: string) {

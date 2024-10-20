@@ -25,11 +25,12 @@ export default function DataTable<TData, TValue>({
     return (
         <div className="rounded-md">
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="ml-auto">
+                <DropdownMenuTrigger className="" asChild>
+                    <Button className="" variant="outline">
                         Columns
                     </Button>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align="end">
                     {table
                         .getAllColumns()

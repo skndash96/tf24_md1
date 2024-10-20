@@ -32,7 +32,7 @@ export default function Header() {
             <nav className="flex gap-4">
                 {user ? (
                     <>
-                        {user._id === "671382fb8b8c6c4776a7c998" && (
+                        {user._id === "6713bc17819052ea5df52440" && (
                             <Link className="font-semibold hover:underline" href="/dashboard">
                                 Dashboard
                             </Link>

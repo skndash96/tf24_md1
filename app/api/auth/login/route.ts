@@ -11,7 +11,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const client = await createMongoClient();
     const cookieStore = cookies();
 
     const user = await getUserByEmail(email);
