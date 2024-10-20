@@ -1,21 +1,29 @@
 import getUser from "@/app/actions/getUser";
+import createMongoClient from "@/app/lib/db";
+import { ObjectId } from "mongodb";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
     try {
-        const userId = req.url.split("?").pop()?.split("&").find((s:any) => s.startsWith("userId"))?.split("=").pop();
+        const cookieStore = cookies();
+        const userId = cookieStore.get("userId")?.value;
 
         if (!userId) return new NextResponse("Invalid request", { status: 400 });
 
-        const user = await getUser(typeof userId === "object" ? userId[0] : userId);
+        const client = await createMongoClient();
         
-        if (user) return NextResponse.json({
-            _id: user._id.toString(),
-            name: user.name,
-            email: user.email
-        }, { status: 200});
+        const user = await getUser(userId);
+        if (!user) return new NextResponse("User not found", { status: 404 });
 
-        return new NextResponse("User not found", { status: 400 });
+        const sub = await client.db('v1').collection("subscriptions").findOne({
+            "userId": new ObjectId(userId)
+        });
+
+        return NextResponse.json({
+            ...user,
+            planName: sub?.planName   
+        }, { status: 200});
     } catch(e) {
         console.error(e);
 

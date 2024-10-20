@@ -13,6 +13,7 @@ import SubscriptionsFilter from "./components/subscriptionsFilter";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import Timer from "./components/timer";
 
 type SaleRecord = {
     id: string,
@@ -174,6 +175,11 @@ export default function Home() {
                         </li>
                     </ul>
                 </div>
+
+                <div className="mt-4 w-fit ml-auto">
+                    <Timer />
+                </div>
+
                 <section className="p-4 w-fit mx-auto flex flex-wrap gap-2">
                     <Card className="max-w-[200px]">
                         <CardHeader>

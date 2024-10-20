@@ -14,7 +14,7 @@ export default function Header() {
             return;
         }
 
-        fetch(`/api/users?userId=${userId}`)
+        fetch(`/api/users`)
             .then(res => res.json())
             .then(user => setUser(user))
             .catch(e => {

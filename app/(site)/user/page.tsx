@@ -11,6 +11,7 @@ import DataTable from "@/components/dataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { socket } from "../../socket";
 import toast from "react-hot-toast";
+import { error } from "console";
 
 type SaleRecord = {
     name: string;
@@ -48,6 +49,7 @@ export default function UserPanel() {
     const [itemsError, setItemsError] = useState<boolean>(false);
     const [salesError, setSalesError] = useState<boolean>(false);
     const [sales, setSales] = useState<any[]>([]);
+    const [currentPlan, setCurrentPlan] = useState<string>();
 
     const handlePurchase = async () => {
         const res = await fetch("/api/buy", {
@@ -97,6 +99,11 @@ export default function UserPanel() {
         if (!userId) router.push("/login");
         else setUserId(userId);
 
+        fetch("/api/users")
+            .then(res => res.json())
+            .then(u => setCurrentPlan(u.planName))
+            .catch(console.error);
+
         fetch("/api/items")
             .then(res => res.json())
             .then(items => setItems(items))
@@ -145,53 +152,61 @@ export default function UserPanel() {
 
     return (
         <div className="p-4 w-full mx-auto max-w-4xl flex flex-col gap-4">
-            <div className="w-fit flex flex-col gap-2">
-                <h1 className="text-lg font-semibold">Buy Items</h1>
+            <div className="flex flex-wrap gap-8">
+                <div className="w-fit flex flex-col gap-2">
+                    <h1 className="text-lg font-semibold">Buy Items</h1>
 
-                <Select defaultValue="" onValueChange={v => setItemId(v)}>
-                    <div>
-                        <SelectTrigger className="w-[280px]">
-                            <SelectValue placeholder="Select an item" />
-                        </SelectTrigger>
-                    </div>
-                    <SelectContent>
-                        {items.map(item => (
-                            <SelectItem key={item._id} value={item._id}>
-                                {item.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                {itemsError && (
-                    <p>Failed to load items</p>
-                )}
+                    <Select defaultValue="" onValueChange={v => setItemId(v)}>
+                        <div>
+                            <SelectTrigger className="w-[280px]">
+                                <SelectValue placeholder="Select an item" />
+                            </SelectTrigger>
+                        </div>
+                        
+                        <SelectContent>
+                            {items.map(item => (
+                                <SelectItem key={item._id} value={item._id}>
+                                    {item.name} (${item.price})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {itemsError && (
+                        <p>Failed to load items</p>
+                    )}
 
-                <Input placeholder="quantity" type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} />
+                    <Input placeholder="quantity" type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} />
 
-                <Button variant="secondary" onClick={handlePurchase}>
-                    Purchase
-                </Button>
-            </div>
+                    <Button variant="secondary" onClick={handlePurchase}>
+                        Purchase
+                        {quantity > 0 && ` ($${items.find(i => i._id === itemId)?.price*quantity})`}
+                    </Button>
+                </div>
 
-            <div className="w-fit flex flex-col gap-2">
-                <h1 className="text-lg font-semibold"> Subscription: </h1>
+                <div className="w-fit flex flex-col gap-2">
+                    <h1 className="text-lg font-semibold"> Subscription: </h1>
 
-                <Select defaultValue={""} onValueChange={(v: any) => setPlan(v)}>
-                    <div>
-                        <SelectTrigger className="w-[280px]">
-                            <SelectValue placeholder="Select a plan" />
-                        </SelectTrigger>
-                    </div>
-                    <SelectContent>
-                        <SelectItem value="member">Member</SelectItem>
-                        <SelectItem value="premium">Premium</SelectItem>
-                        <SelectItem value="vip">VIP</SelectItem>
-                    </SelectContent>
-                </Select>
+                    <Select defaultValue={""} onValueChange={(v: any) => setPlan(v)}>
+                        <div>
+                            <SelectTrigger className="w-[280px]">
+                                <SelectValue placeholder="Select a plan" />
+                            </SelectTrigger>
+                        </div>
+                        <SelectContent>
+                            {["member", "premium", "vip"].map(p => (
+                                <SelectItem key={p} disabled={p === currentPlan} value={p}>
+                                    {p[0].toUpperCase()}
+                                    {p.substring(1)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                <Button variant="secondary" onClick={handleSubs}>
-                    Subscribe
-                </Button>
+                    <Button variant="secondary" onClick={handleSubs}>
+                        Subscribe
+                        {plan && ` ($${plan === "vip" ? 30 : plan === "premium" ? 20 : 10})`}
+                    </Button>
+                </div>
             </div>
 
             <section className="mt-8">
@@ -209,7 +224,7 @@ export default function UserPanel() {
                     <DataTable columns={columns} data={sales.map(sale => ({
                         name: sale.item.name,
                         quantity: sale.quantity,
-                        price: "$"+sale.item.price*sale.quantity,
+                        price: "$" + sale.item.price * sale.quantity,
                         date: new Date(sale.createdAt).toLocaleString()
                     }))} />
                 </div>

@@ -28,6 +28,11 @@ export async function GET(request: Request) {
                     foreignField: "_id",
                     as: "item"
                 }
+            },
+            {
+                "$unwind": {
+                    path: "$item"
+                }
             }
         ]).toArray();
 
